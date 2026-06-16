@@ -1,0 +1,6 @@
+.env
+output/
+__pycache__/
+*.pyc
+*.log
+logo_bsbpark.png.png
