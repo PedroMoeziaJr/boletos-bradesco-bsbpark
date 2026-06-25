@@ -118,6 +118,14 @@ def gerar_relatorio_excel(boletos_gerados: list[dict]) -> bytes:
 
 
 def executar_geracao(selecionados: pd.DataFrame, competencia: date, mes_abrev: str, ano: int, config: dict) -> None:
+    sem_valor = [row["cod_cliente"] for _, row in selecionados.iterrows() if float(row["valor"]) <= 0]
+    if sem_valor:
+        st.error(
+            "O Bradesco rejeita boletos com valor R$ 0,00. Defina um valor maior que zero para: "
+            + ", ".join(sem_valor)
+        )
+        return
+
     boletos_input = []
     for _, row in selecionados.iterrows():
         cliente = st.session_state.clientes_raw[row["cod_cliente"]]
