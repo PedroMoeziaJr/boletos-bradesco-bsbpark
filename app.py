@@ -577,12 +577,15 @@ with tab_retorno:
             col_s1, col_s2, col_s3, col_s4 = st.columns(4)
             confirmados = sum(1 for r in registros_ret if r["ocorrencia"] == "02")
             rejeitados  = sum(1 for r in registros_ret if r["ocorrencia"] == "03")
-            pagos       = sum(1 for r in registros_ret if r["ocorrencia"] in {"06", "15", "17"})
+            pagos       = sum(1 for r in registros_ret if r["ocorrencia"] in {"06", "15", "17", "66"})
             outros      = len(registros_ret) - confirmados - rejeitados - pagos
             col_s1.metric("Confirmados (02)", confirmados)
             col_s2.metric("Rejeitados (03)",  rejeitados)
-            col_s3.metric("Pagos (06/15/17)", pagos)
+            col_s3.metric("Pagos (06/15/17/66)", pagos)
             col_s4.metric("Outros",           outros)
+
+            def _fmt_rs(v: float) -> str:
+                return f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
             # Tabela detalhada
             df_ret = pd.DataFrame([
@@ -591,8 +594,10 @@ with tab_retorno:
                     "Nosso Número":    r["nosso_numero"],
                     "Ocorrência":      r["ocorrencia"],
                     "Descrição":       r["descricao"],
+                    "Motivo":          r["motivo"] or "—",
                     "Vencimento":      r["data_vencimento"].strftime("%d/%m/%Y") if r["data_vencimento"] else "—",
-                    "Valor (R$)":      f"{r['valor_titulo']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+                    "Valor Título (R$)": _fmt_rs(r["valor_titulo"]),
+                    "Valor Pago (R$)": _fmt_rs(r["valor_pago"]) if r["valor_pago"] else "—",
                     "Data Crédito":    r["data_credito"].strftime("%d/%m/%Y") if r["data_credito"] else "—",
                     "Novo Status":     r["status_novo"] or "—",
                 }
